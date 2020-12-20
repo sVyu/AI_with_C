@@ -4,31 +4,31 @@
 #include <math.h>
 #include <time.h>
 
-#define n_input	25				// ÀÔ·ÂÃş ³ëµå °³¼ö
-#define n_hidden 10				// Àº´ĞÃş ³ëµå °³¼ö
-#define n_output 8				// Ãâ·ÂÃş ³ëµå °³¼ö
+#define n_input	25				// ì…ë ¥ì¸µ ë…¸ë“œ ê°œìˆ˜
+#define n_hidden 10				// ì€ë‹‰ì¸µ ë…¸ë“œ ê°œìˆ˜
+#define n_output 8				// ì¶œë ¥ì¸µ ë…¸ë“œ ê°œìˆ˜
 #define n2_output 8
-#define lines 5					// ÇÔ¼ö »ç¿ë°ú Ãâ·ÂÀÇ ÆíÀÇ¸¦ À§ÇØ ÀÓÀÇ·Î ¼³Á¤ÇÑ ÁÙ ¼ö ÀÔ´Ï´Ù
-								// ex) 25 ³ëµå = 5 ³ëµå x 5 lines
-#define margin_of_error 0.0012	// ¿ÀÂ÷ ¹üÀ§ : 2 x margin_of_error ,,
+#define lines 5					// í•¨ìˆ˜ ì‚¬ìš©ê³¼ ì¶œë ¥ì˜ í¸ì˜ë¥¼ ìœ„í•´ ì„ì˜ë¡œ ì„¤ì •í•œ ì¤„ ìˆ˜ ì…ë‹ˆë‹¤
+								// ex) 25 ë…¸ë“œ = 5 ë…¸ë“œ x 5 lines
+#define margin_of_error 0.0012	// ì˜¤ì°¨ ë²”ìœ„ : 2 x margin_of_error ,,
 
-void SetW_ih(double W_ih[][n_input]);				// °¡ÁßÄ¡ ÃÊ±âÈ­
-void SetW_ho(double W_ho[][n_hidden]);				// °¡ÁßÄ¡ ÃÊ±âÈ­
-void PrintNodeH(int N_input[], double W_ih[][n_input], double N_hidden[], int check);					// ÀÔ·ÂÃş -> Àº´ĞÃş ³ëµå Ãâ·Â
-void PrintNodeO(double N_hidden[], double W_ho[][n_hidden], double N_output[], int check);				// Àº´ĞÃş -> Ãâ·ÂÃş ³ëµå Ãâ·Â
-void CalOutError(double E_output[], double N_output[], int n);											// Ãâ·ÂÃş ¿ÀÂ÷ °è»ê
-void CalHiddenError(double E_hidden[], double N_hidden[], double E_output[], double W_ho[][n_hidden]);	// Àº´ĞÃş ¿ÀÂ÷ °è»ê
-void RenewW_ho(double W_ho[][n_hidden], double eta, double E_output[], double N_hidden[]);				// °¡ÁßÄ¡ ¼öÁ¤ (Àº´ĞÃş -> Ãâ·ÂÃş)
-void RenewW_ih(double W_ih[][n_input], double eta, double E_hidden[], int N_input[]);					// °¡ÁßÄ¡ ¼öÁ¤ (ÀÔ·ÂÃş -> Àº´ĞÃş)
-int CheckEnd(double W_ih[][n_input], double W_ih_check[][n_input], double W_ho[][n_hidden], double W_ho_check[][n_hidden]);		// ·çÇÁ Á¾·á Ã¼Å©
-void CopyW(double W_ih[][n_input],double W_ih_check[][n_input], double W_ho[][n_hidden], double W_ho_check[][n_hidden]);		// °¡ÁßÄ¡ º¹»ç 
+void SetW_ih(double W_ih[][n_input]);				// ê°€ì¤‘ì¹˜ ì´ˆê¸°í™”
+void SetW_ho(double W_ho[][n_hidden]);				// ê°€ì¤‘ì¹˜ ì´ˆê¸°í™”
+void PrintNodeH(int N_input[], double W_ih[][n_input], double N_hidden[], int check);					// ì…ë ¥ì¸µ -> ì€ë‹‰ì¸µ ë…¸ë“œ ì¶œë ¥
+void PrintNodeO(double N_hidden[], double W_ho[][n_hidden], double N_output[], int check);				// ì€ë‹‰ì¸µ -> ì¶œë ¥ì¸µ ë…¸ë“œ ì¶œë ¥
+void CalOutError(double E_output[], double N_output[], int n);											// ì¶œë ¥ì¸µ ì˜¤ì°¨ ê³„ì‚°
+void CalHiddenError(double E_hidden[], double N_hidden[], double E_output[], double W_ho[][n_hidden]);	// ì€ë‹‰ì¸µ ì˜¤ì°¨ ê³„ì‚°
+void RenewW_ho(double W_ho[][n_hidden], double eta, double E_output[], double N_hidden[]);				// ê°€ì¤‘ì¹˜ ìˆ˜ì • (ì€ë‹‰ì¸µ -> ì¶œë ¥ì¸µ)
+void RenewW_ih(double W_ih[][n_input], double eta, double E_hidden[], int N_input[]);					// ê°€ì¤‘ì¹˜ ìˆ˜ì • (ì…ë ¥ì¸µ -> ì€ë‹‰ì¸µ)
+int CheckEnd(double W_ih[][n_input], double W_ih_check[][n_input], double W_ho[][n_hidden], double W_ho_check[][n_hidden]);		// ë£¨í”„ ì¢…ë£Œ ì²´í¬
+void CopyW(double W_ih[][n_input],double W_ih_check[][n_input], double W_ho[][n_hidden], double W_ho_check[][n_hidden]);		// ê°€ì¤‘ì¹˜ ë³µì‚¬ 
 
-double GaussianRandom(void);						// °¡¿ì½Ã¾È Ç¥ÁØÁ¤±ÔºĞÆ÷ ÇÔ¼ö, °¡ÁßÄ¡ ÃÊ±âÈ­¿¡ »ç¿ë !!
-void PrintInputPattern(int P_input[][n_input]);		// ÀÔ·ÂÆĞÅÏ ´Ü¼ø Ãâ·ÂÀ» À§ÇÑ ÇÔ¼ö (printf)
+double GaussianRandom(void);						// ê°€ìš°ì‹œì•ˆ í‘œì¤€ì •ê·œë¶„í¬ í•¨ìˆ˜, ê°€ì¤‘ì¹˜ ì´ˆê¸°í™”ì— ì‚¬ìš© !!
+void PrintInputPattern(int P_input[][n_input]);		// ì…ë ¥íŒ¨í„´ ë‹¨ìˆœ ì¶œë ¥ì„ ìœ„í•œ í•¨ìˆ˜ (printf)
 
 int main()
 {
-	// ÀÔ·ÂÃş (ÆĞÅÏ): A, B, C, D, E, F, G, H
+	// ì…ë ¥ì¸µ (íŒ¨í„´): A, B, C, D, E, F, G, H
 	int P_input[n_output][n_input] =
 	{
 
@@ -140,7 +140,7 @@ int main()
 
 #endif
 		/*
-		// ¤¡
+		// ã„±
 		{
 			 1,	 1,	 1,	 1,  1,	 1,	 1,
 			 0,	 0,	 0,	 0,	 0,	 0,  1,
@@ -150,7 +150,7 @@ int main()
 		},
 
 		#if 1
-		// ¤¤
+		// ã„´
 		{
 			 1,	 0,	 0,	 0,  0,	 0,	 0,
 			 1,	 0,	 0,	 0,	 0,	 0,  0,
@@ -161,7 +161,7 @@ int main()
 		#endif
 
 		#if 1
-		// ¤©
+		// ã„¹
 		{
 			 1,	 1,	 1,	 1,  1,	 1,	 1,
 			 0,	 0,	 0,	 0,	 0,	 0,  1,
@@ -172,7 +172,7 @@ int main()
 		#endif
 
 		#if 1
-		// ¤»
+		// ã…‹
 		{
 			 1,	 1,	 1,	 1,  1,	 1,	 1,
 			 0,	 0,	 0,	 0,	 0,	 0,  1,
@@ -183,7 +183,7 @@ int main()
 		#endif
 
 		#if 1
-		// ¤¼
+		// ã…Œ
 
 		{
 			 1,	 1,	 1,	 1,  1,	 1,	 1,
@@ -369,28 +369,28 @@ int main()
 #endif
 	};
 	
-	// ÀÔ·ÂÆĞÅÏ Ãâ·Â ÄÚµå
+	// ì…ë ¥íŒ¨í„´ ì¶œë ¥ ì½”ë“œ
 	PrintInputPattern(P_input);
 
-	double N_hidden[n_hidden] = { 0 };	// Àº´ĞÃş ³ëµå
-	double N_output[n_output] = { 0 };	// Ãâ·ÂÃş ³ëµå
+	double N_hidden[n_hidden] = { 0 };	// ì€ë‹‰ì¸µ ë…¸ë“œ
+	double N_output[n_output] = { 0 };	// ì¶œë ¥ì¸µ ë…¸ë“œ
 
-	double W_ih[n_hidden][n_input] = { 0 };		// ÀÔ·ÂÃş ¤Ñ Àº´ĞÃş °¡ÁßÄ¡ ¹è¿­
-	SetW_ih(W_ih);		// ·£´ıÀ¸·Î ¼³Á¤?		// ÃÊ±âÈ­
+	double W_ih[n_hidden][n_input] = { 0 };		// ì…ë ¥ì¸µ ã…¡ ì€ë‹‰ì¸µ ê°€ì¤‘ì¹˜ ë°°ì—´
+	SetW_ih(W_ih);		// ëœë¤ìœ¼ë¡œ ì„¤ì •?		// ì´ˆê¸°í™”
 
-	double W_ho[n_output][n_hidden] = { 0 };	// Àº´ĞÃş ¤Ñ Ãâ·ÂÃş °¡ÁßÄ¡ ¹è¿­
-	SetW_ho(W_ho);		// ·£´ıÀ¸·Î ¼³Á¤?		// ÃÊ±âÈ­
+	double W_ho[n_output][n_hidden] = { 0 };	// ì€ë‹‰ì¸µ ã…¡ ì¶œë ¥ì¸µ ê°€ì¤‘ì¹˜ ë°°ì—´
+	SetW_ho(W_ho);		// ëœë¤ìœ¼ë¡œ ì„¤ì •?		// ì´ˆê¸°í™”
 
-	double E_hidden[n_hidden] = { 0 };			// Àº´ĞÃş ¿ÀÂ÷ ¹è¿­
-	double E_output[n_output] = { 0 };			// Ãâ·ÂÃş ¿ÀÂ÷ ¹è¿­
+	double E_hidden[n_hidden] = { 0 };			// ì€ë‹‰ì¸µ ì˜¤ì°¨ ë°°ì—´
+	double E_output[n_output] = { 0 };			// ì¶œë ¥ì¸µ ì˜¤ì°¨ ë°°ì—´
 
-	double eta = 0.1;				// ÇĞ½ÀÀ²	// ¥ç : °¡ÁßÄ¡ ¼öÁ¤À» À§ÇÑ °ª
+	double eta = 0.1;				// í•™ìŠµìœ¨	// Î· : ê°€ì¤‘ì¹˜ ìˆ˜ì •ì„ ìœ„í•œ ê°’
 
-	int check = 0;								// ·çÇÁ Á¾·á¸¦ À§ÇÑ º¯¼ö
-	double W_ih_check[n_hidden][n_input] = { 0 };	// ·çÇÁ Á¾·á¸¦ À§ÇÑ °¡ÁßÄ¡ ¹è¿­ w(t-1)
-	double W_ho_check[n_output][n_hidden] = { 0 };	// ·çÇÁ Á¾·á¸¦ À§ÇÑ °¡ÁßÄ¡ ¹è¿­ w(t-1)
+	int check = 0;								// ë£¨í”„ ì¢…ë£Œë¥¼ ìœ„í•œ ë³€ìˆ˜
+	double W_ih_check[n_hidden][n_input] = { 0 };	// ë£¨í”„ ì¢…ë£Œë¥¼ ìœ„í•œ ê°€ì¤‘ì¹˜ ë°°ì—´ w(t-1)
+	double W_ho_check[n_output][n_hidden] = { 0 };	// ë£¨í”„ ì¢…ë£Œë¥¼ ìœ„í•œ ê°€ì¤‘ì¹˜ ë°°ì—´ w(t-1)
 
-	int epoch = 0;								// ·çÇÁ ¹İº¹ È½¼ö
+	int epoch = 0;								// ë£¨í”„ ë°˜ë³µ íšŸìˆ˜
 
 	srand((unsigned)time(NULL));
 	clock_t start, end;
@@ -401,40 +401,40 @@ int main()
 
 	while (!check)
 	{
-		// ÀÔ·ÂÆĞÅÏÀÇ ¼ö(= Ãâ·ÂÃş ³ëµå ¼ö) ¸¸Å­ ¹İº¹ !
+		// ì…ë ¥íŒ¨í„´ì˜ ìˆ˜(= ì¶œë ¥ì¸µ ë…¸ë“œ ìˆ˜) ë§Œí¼ ë°˜ë³µ !
 		for (int i = 0; i < n_output; i++)
 		{
-			// ÀÔ·ÂÃş -> Àº´ĞÃş ³ëµå Ãâ·Â
+			// ì…ë ¥ì¸µ -> ì€ë‹‰ì¸µ ë…¸ë“œ ì¶œë ¥
 			PrintNodeH(P_input[i], W_ih, N_hidden, check);
 
-			// Àº´ĞÃş -> Ãâ·ÂÃş ³ëµå Ãâ·Â
+			// ì€ë‹‰ì¸µ -> ì¶œë ¥ì¸µ ë…¸ë“œ ì¶œë ¥
 			PrintNodeO(N_hidden, W_ho, N_output, check);
 
-			// Ãâ·ÂÃş ¿ÀÂ÷ °è»ê
+			// ì¶œë ¥ì¸µ ì˜¤ì°¨ ê³„ì‚°
 			CalOutError(E_output, N_output, i);
 
-			// Àº´ĞÃş ¿ÀÂ÷ °è»ê
+			// ì€ë‹‰ì¸µ ì˜¤ì°¨ ê³„ì‚°
 			CalHiddenError(E_hidden, N_hidden, E_output, W_ho);
 
-			// °¡ÁßÄ¡ ¼öÁ¤ ( Àº´ĞÃş -> Ãâ·ÂÃş )
+			// ê°€ì¤‘ì¹˜ ìˆ˜ì • ( ì€ë‹‰ì¸µ -> ì¶œë ¥ì¸µ )
 			RenewW_ho(W_ho, eta, E_output, N_hidden);
 
-			// °¡ÁßÄ¡ ¼öÁ¤ ( ÀÔ·ÂÃş -> Àº´ĞÃş )
+			// ê°€ì¤‘ì¹˜ ìˆ˜ì • ( ì…ë ¥ì¸µ -> ì€ë‹‰ì¸µ )
 			RenewW_ih(W_ih, eta, E_hidden, P_input[i]);
 		}
 		epoch++;
 
-		// Á¾·á Á¶°ÇÀÌ µÇ´ÂÁö °Ë»ç !
+		// ì¢…ë£Œ ì¡°ê±´ì´ ë˜ëŠ”ì§€ ê²€ì‚¬ !
 		check = CheckEnd(W_ih, W_ih_check, W_ho, W_ho_check);
 	}
 	end = clock();
 	runtime = (float) (end - start)/CLOCKS_PER_SEC;
 
-	printf(" epoch : %d, ¼Ò¿ä½Ã°£ : %.3f ÃÊ\n", epoch, runtime);
-	printf(" 1 epoch´ç ¼Ò¿ä½Ã°£ : %.7f ÃÊ\n\n", runtime/epoch);
+	printf(" epoch : %d, ì†Œìš”ì‹œê°„ : %.3f ì´ˆ\n", epoch, runtime);
+	printf(" 1 epochë‹¹ ì†Œìš”ì‹œê°„ : %.7f ì´ˆ\n\n", runtime/epoch);
 	system("pause");
 
-	// ÃÖÁ¾ Ãâ·ÂÀ» À§ÇÑ ¹è¿­
+	// ìµœì¢… ì¶œë ¥ì„ ìœ„í•œ ë°°ì—´
 	int S_input[n2_output][n_input] =
 	{
 // 5x5
@@ -546,7 +546,7 @@ int main()
 #endif
 #endif
 		/*
-			// [1] ¤¡ °ú Èí»çÇÑ ÆĞÅÏ
+			// [1] ã„± ê³¼ í¡ì‚¬í•œ íŒ¨í„´
 		{
 			 1,	 1,	 1,	 0,  1,	 1,	 1,
 			 1,	 0,	 0,	 0,	 0,	 1,  0,
@@ -555,7 +555,7 @@ int main()
 			 0,	 0,	 0,	 0,	 0,	 0,  1
 		},
 
-		// [2] ¤¡ °ú Èí»çÇÑ ÆĞÅÏ
+		// [2] ã„± ê³¼ í¡ì‚¬í•œ íŒ¨í„´
 		{
 			 1,	 1,	 0,	 1,  1,	 1,	 1,
 			 1,	 1,	 1,	 0,	 1,	 0,  1,
@@ -564,7 +564,7 @@ int main()
 			 0,	 0,	 0,	 0,	 0,	 0,  1
 		},
 
-		// [3] ¤¤ °ú Èí»çÇÑ ÆĞÅÏ
+		// [3] ã„´ ê³¼ í¡ì‚¬í•œ íŒ¨í„´
 		{
 			 1,	 0,	 0,	 0,  0,	 0,	 0,
 			 1,	 0,	 1,	 0,	 0,	 0,  0,
@@ -573,7 +573,7 @@ int main()
 			 1,	 1,	 1,	 1,	 1,	 0,  1
 		},
 
-		// [4] ¤¤ °ú Èí»çÇÑ ÆĞÅÏ
+		// [4] ã„´ ê³¼ í¡ì‚¬í•œ íŒ¨í„´
 		{
 			 0,	 1,	 0,	 0,  0,  0,	 0,
 			 1,	 0,	 0,	 0,	 0,	 0,  1,
@@ -582,7 +582,7 @@ int main()
 			 1,	 1,	 1,	 1,	 1,	 1,  1
 		},
 
-		// [5] ¤© °ú Èí»çÇÑ ÆĞÅÏ
+		// [5] ã„¹ ê³¼ í¡ì‚¬í•œ íŒ¨í„´
 		{
 			 1,	 1,	 0,	 1,  1,	 1,	 1,
 			 0,	 0,	 0,	 0,	 0,	 0,  1,
@@ -591,7 +591,7 @@ int main()
 			 1,	 1,	 1,	 1,	 1,	 0,  1
 		},
 
-		// [6] ¤© °ú Èí»çÇÑ ÆĞÅÏ
+		// [6] ã„¹ ê³¼ í¡ì‚¬í•œ íŒ¨í„´
 		{
 			 1,	 1,	 0,	 1,  1,	 1,	 0,
 			 1,	 0,	 0,	 0,	 0,	 1,  1,
@@ -600,7 +600,7 @@ int main()
 			 0,	 0,	 1,	 1,	 1,	 1,  1
 		},
 
-		// [7] ¤» °ú Èí»çÇÑ ÆĞÅÏ
+		// [7] ã…‹ ê³¼ í¡ì‚¬í•œ íŒ¨í„´
 		{
 			 1,	 1,	 1,	 1,  1,	 1,	 1,
 			 0,	 0,	 0,	 0,	 1,	 0,  1,
@@ -609,7 +609,7 @@ int main()
 			 0,	 0,	 0,	 0,	 0,	 0,  1
 		},
 
-		// [8] ¤» °ú Èí»çÇÑ ÆĞÅÏ
+		// [8] ã…‹ ê³¼ í¡ì‚¬í•œ íŒ¨í„´
 		{
 			 1,	 1,	 1,	 1,  0,	 1,	 0,
 			 0,	 0,	 0,	 0,	 0,	 0,  1,
@@ -618,7 +618,7 @@ int main()
 			 0,	 0,	 0,	 0,	 0,	 0,  1
 		},
 
-		// [9] ¤¼°ú À¯»çÇÑ ÆĞÅÏ
+		// [9] ã…Œê³¼ ìœ ì‚¬í•œ íŒ¨í„´
 		 {
 				 0,  1,  1,  1,  1,  1, 1,
 				 1,  1,  1,  0,  0,  0, 0,
@@ -627,7 +627,7 @@ int main()
 				 1,  1,  1,  1,  1,  1, 1
 		 },
 
-		// [10] ¤¼°ú À¯»çÇÑ ÆĞÅÏ
+		// [10] ã…Œê³¼ ìœ ì‚¬í•œ íŒ¨í„´
 		{
 			 0,	 1,	 1,	 1,  1,	 1,	 0,
 			 1,	 0,	 0,	 0,	 0,	 0,  0,
@@ -811,14 +811,14 @@ int main()
 	};
 
 	int MaxValueIndex = 0;
-	//Ãâ·ÂÀ» À§ÇÑ ÇÔ¼ö
+	//ì¶œë ¥ì„ ìœ„í•œ í•¨ìˆ˜
 	for (int i = 0; i < n2_output; i++)
 		{
 			PrintNodeH(S_input[i], W_ih, N_hidden, check);
 			PrintNodeO(N_hidden, W_ho, N_output, check);
 
-			printf("\n\t\t\t\t\t [ %d¹øÂ° output ] !!\n\n", i+1);
-//			printf("\n\t\t\t\t [ %d¹øÂ° output ] !!\n\n", i+1);
+			printf("\n\t\t\t\t\t [ %dë²ˆì§¸ output ] !!\n\n", i+1);
+//			printf("\n\t\t\t\t [ %dë²ˆì§¸ output ] !!\n\n", i+1);
 			for (int j = 0; j < n_output; j++)
 			{
 				if (N_output[MaxValueIndex] < N_output[j]) MaxValueIndex = j;
@@ -829,7 +829,7 @@ int main()
 			for (int j = 0; j < n_output; j++)
 			{
 				N_output[j] = (int)(N_output[j] / N_output[MaxValueIndex]);
-				printf("%11.f", N_output[j]);		// ÃÖÁ¾ ¾Æ¿ôÇ² !
+				printf("%11.f", N_output[j]);		// ìµœì¢… ì•„ì›ƒí’‹ !
 			}
 			printf("\n");
 			
@@ -842,9 +842,9 @@ int main()
 				do
 				{
 					if (S_input[i][k] == 0)
-						printf("¡à");
+						printf("â–¡");
 					else
-						printf("¡á");
+						printf("â– ");
 					k++;
 				} while (k % (n_input / lines) != 0);
 				printf("\t\t");
@@ -853,9 +853,9 @@ int main()
 				do
 				{
 					if (P_input[MaxValueIndex][k] == 0)
-						printf("¡à");
+						printf("â–¡");
 					else
-						printf("¡á");
+						printf("â– ");
 					k++;
 				} while (k % (n_input / lines) != 0);
 				printf("\n");
@@ -867,14 +867,14 @@ int main()
 		
 }
 
-// °¡ÁßÄ¡ ÃÊ±âÈ­ (ÀÔ·ÂÃş ¤Ñ Àº´ĞÃş)
+// ê°€ì¤‘ì¹˜ ì´ˆê¸°í™” (ì…ë ¥ì¸µ ã…¡ ì€ë‹‰ì¸µ)
 void SetW_ih(double W_ih[][n_input])
 {
 	for (int i = 0; i < n_hidden; i++)
 		for (int j = 0; j < n_input; j++)
 			W_ih[i][j] = GaussianRandom()/sqrt(n_input);
 
-	// Ãâ·Â¿ë ÄÚµå
+	// ì¶œë ¥ìš© ì½”ë“œ
 	for (int i = 0; i < n_hidden; i++)
 	{
 		int j = 0;
@@ -886,17 +886,17 @@ void SetW_ih(double W_ih[][n_input])
 		} while (j < n_input);
 		printf("\n");
 	}
-	printf("\n SetW_ih ¿Ï·á : ÀÔ·ÂÃş ³ëµå %d * Àº´ĞÃş ³ëµå %d = %d °³ ÃÊ±âÈ­ !\n\n", n_input, n_hidden, n_input * n_hidden);
+	printf("\n SetW_ih ì™„ë£Œ : ì…ë ¥ì¸µ ë…¸ë“œ %d * ì€ë‹‰ì¸µ ë…¸ë“œ %d = %d ê°œ ì´ˆê¸°í™” !\n\n", n_input, n_hidden, n_input * n_hidden);
 }
 
-// °¡ÁßÄ¡ ÃÊ±âÈ­ (Àº´ĞÃş - Ãâ·ÂÃş)
+// ê°€ì¤‘ì¹˜ ì´ˆê¸°í™” (ì€ë‹‰ì¸µ - ì¶œë ¥ì¸µ)
 void SetW_ho(double W_ho[][n_hidden])
 {
 	for (int i = 0; i < n_output; i++)
 		for (int j = 0; j < n_hidden; j++)
 			W_ho[i][j] = GaussianRandom()/sqrt(n_input);
 	
-	// Ãâ·Â¿ë ÄÚµå
+	// ì¶œë ¥ìš© ì½”ë“œ
 	for (int i = 0; i < n_output; i++)
 	{
 		for (int j = 0; j < n_hidden; j++)
@@ -905,36 +905,36 @@ void SetW_ho(double W_ho[][n_hidden])
 		}
 		printf("\n");
 	}
-	printf("\n SetW_ho ¿Ï·á : Àº´ĞÃş ³ëµå %d * Ãâ·ÂÃş ³ëµå %d = %d °³ ÃÊ±âÈ­ !\n\n", n_hidden, n_output, n_hidden * n_output);
+	printf("\n SetW_ho ì™„ë£Œ : ì€ë‹‰ì¸µ ë…¸ë“œ %d * ì¶œë ¥ì¸µ ë…¸ë“œ %d = %d ê°œ ì´ˆê¸°í™” !\n\n", n_hidden, n_output, n_hidden * n_output);
 }
 
-// ÀÔ·ÂÃş -> Àº´ĞÃş ³ëµå Ãâ·Â
+// ì…ë ¥ì¸µ -> ì€ë‹‰ì¸µ ë…¸ë“œ ì¶œë ¥
 void PrintNodeH(int N_input[], double W_ih[][n_input], double N_hidden[], int check)
 {
-	if (check)										// ¸¸¾à check°¡ 0ÀÌ ¾Æ´Ï¸é ( ·çÇÁ°¡ ³¡³µÀ¸¸é )
+	if (check)										// ë§Œì•½ checkê°€ 0ì´ ì•„ë‹ˆë©´ ( ë£¨í”„ê°€ ëë‚¬ìœ¼ë©´ )
 		for (int i = 0; i < n_hidden; i++)
-			N_hidden[i] = 0;						// Àº´ĞÃş ³ëµåµéÀ» 0À¸·Î ÃÊ±âÈ­
+			N_hidden[i] = 0;						// ì€ë‹‰ì¸µ ë…¸ë“œë“¤ì„ 0ìœ¼ë¡œ ì´ˆê¸°í™”
 
 	for (int i = 0; i < n_hidden; i++)
 	{
 		for (int j = 0; j < n_input; j++)
 			N_hidden[i] += N_input[j] * W_ih[i][j];
 
-		N_hidden[i] = 1 / (1 + exp(-N_hidden[i]));		// ½Ã±×¸ğÀÌµå
+		N_hidden[i] = 1 / (1 + exp(-N_hidden[i]));		// ì‹œê·¸ëª¨ì´ë“œ
 		if (check)
 		{
-//			printf("%d ¹øÂ° hidden node : %lf\n", i, N_hidden[i]);
+//			printf("%d ë²ˆì§¸ hidden node : %lf\n", i, N_hidden[i]);
 //			printf("\n\n");
 		}
 	}
 }
 
-// Àº´ĞÃş -> Ãâ·ÂÃş ³ëµå Ãâ·Â
+// ì€ë‹‰ì¸µ -> ì¶œë ¥ì¸µ ë…¸ë“œ ì¶œë ¥
 void PrintNodeO(double N_hidden[], double W_ho[][n_hidden], double N_output[], int check)
 {
-	if (check)										// ¸¸¾à check°¡ 0ÀÌ ¾Æ´Ï¸é ( ·çÇÁ°¡ ³¡³µÀ¸¸é )
+	if (check)										// ë§Œì•½ checkê°€ 0ì´ ì•„ë‹ˆë©´ ( ë£¨í”„ê°€ ëë‚¬ìœ¼ë©´ )
 		for(int i = 0; i < n_output; i++)			
-			N_output[i] = 0;						// Ãâ·ÂÃş ³ëµåµéÀ» 0À¸·Î ÃÊ±âÈ­
+			N_output[i] = 0;						// ì¶œë ¥ì¸µ ë…¸ë“œë“¤ì„ 0ìœ¼ë¡œ ì´ˆê¸°í™”
 
 	for (int i = 0; i < n_output; i++)
 	{
@@ -942,29 +942,29 @@ void PrintNodeO(double N_hidden[], double W_ho[][n_hidden], double N_output[], i
 		{
 			N_output[i] += N_hidden[j] * W_ho[i][j];
 		}
-		N_output[i] = 1 / (1 + exp(-N_output[i]));		// ½Ã±×¸ğÀÌµå
+		N_output[i] = 1 / (1 + exp(-N_output[i]));		// ì‹œê·¸ëª¨ì´ë“œ
 //		if (N_hidden[i] < 0) N_hidden[i] = 0;			// ReLu
 		if (check)
 		{
-//			printf("%d ¹øÂ° outnode : %f\n", i, N_output[i]);
+//			printf("%d ë²ˆì§¸ outnode : %f\n", i, N_output[i]);
 //			printf("\n");
 		}
 	}
 }
 
-// Ãâ·ÂÃş ¿ÀÂ÷ °è»ê
+// ì¶œë ¥ì¸µ ì˜¤ì°¨ ê³„ì‚°
 void CalOutError(double E_output[], double N_output[], int n)
 {
 	int check = 0;
 	for (int i = 0; i < n_output; i++)
 	{
-		if (n == i) check = 1;				// Ãâ·ÂÃş ¿À·ù °è»êÀÇ
-		else check = 0;						// (d_j - y_j)¸¦ À§ÇÑ ÄÚµå
+		if (n == i) check = 1;				// ì¶œë ¥ì¸µ ì˜¤ë¥˜ ê³„ì‚°ì˜
+		else check = 0;						// (d_j - y_j)ë¥¼ ìœ„í•œ ì½”ë“œ
 		E_output[i] = N_output[i] * (1 - N_output[i]) * (check - N_output[i]);
 	}
 }
 
-// Àº´ĞÃş ¿ÀÂ÷ °è»ê
+// ì€ë‹‰ì¸µ ì˜¤ì°¨ ê³„ì‚°
 void CalHiddenError(double E_hidden[], double N_hidden[], double E_output[], double W_ho[][n_hidden])
 {
 	double ErrorSum = 0;
@@ -978,7 +978,7 @@ void CalHiddenError(double E_hidden[], double N_hidden[], double E_output[], dou
 	}
 }
 
-// °¡ÁßÄ¡ ¼öÁ¤ (Àº´ĞÃş -> Ãâ·ÂÃş)
+// ê°€ì¤‘ì¹˜ ìˆ˜ì • (ì€ë‹‰ì¸µ -> ì¶œë ¥ì¸µ)
 void RenewW_ho(double W_ho[][n_hidden], double eta, double E_output[], double N_hidden[])
 {
 	for (int i = 0; i < n_hidden; i++)
@@ -986,7 +986,7 @@ void RenewW_ho(double W_ho[][n_hidden], double eta, double E_output[], double N_
 			W_ho[j][i] += eta * E_output[j] * N_hidden[i];
 }
 
-// °¡ÁßÄ¡ ¼öÁ¤ (ÀÔ·ÂÃş -> Àº´ĞÃş)
+// ê°€ì¤‘ì¹˜ ìˆ˜ì • (ì…ë ¥ì¸µ -> ì€ë‹‰ì¸µ)
 void RenewW_ih(double W_ih[][n_input], double eta, double E_hidden[], int N_input[])
 {
 	for (int i = 0; i < n_input; i++)
@@ -994,7 +994,7 @@ void RenewW_ih(double W_ih[][n_input], double eta, double E_hidden[], int N_inpu
 			W_ih[j][i] += eta * E_hidden[j] * N_input[i];
 }
 
-// ·çÇÁ Á¾·á Ã¼Å©
+// ë£¨í”„ ì¢…ë£Œ ì²´í¬
 int CheckEnd(double W_ih[][n_input], double W_ih_check[][n_input], double W_ho[][n_hidden], double W_ho_check[][n_hidden])
 {
 	double CheckVal = 0;
@@ -1025,26 +1025,26 @@ int CheckEnd(double W_ih[][n_input], double W_ih_check[][n_input], double W_ho[]
 	return 1;
 }
 
-// °¡ÁßÄ¡ º¹»ç
+// ê°€ì¤‘ì¹˜ ë³µì‚¬
 void CopyW(double W_ih[][n_input], double W_ih_check[][n_input], double W_ho[][n_hidden], double W_ho_check[][n_hidden])
 {
 	for (int i = 0; i < n_hidden; i++)
 		for (int j = 0; j < n_input; j++)
-			W_ih_check[i][j] = W_ih[i][j];		// ÀÔ·ÂÃş - Àº´ĞÃş °¡ÁßÄ¡ º¹»ç
+			W_ih_check[i][j] = W_ih[i][j];		// ì…ë ¥ì¸µ - ì€ë‹‰ì¸µ ê°€ì¤‘ì¹˜ ë³µì‚¬
 
 	for (int i = 0; i < n_output; i++)
 		for (int j = 0; j < n_hidden; j++)
-			W_ho_check[i][j] = W_ho[i][j];		// Àº´ĞÃş - Ãâ·ÂÃş °¡ÁßÄ¡ º¹»ç
+			W_ho_check[i][j] = W_ho[i][j];		// ì€ë‹‰ì¸µ - ì¶œë ¥ì¸µ ê°€ì¤‘ì¹˜ ë³µì‚¬
 }
 
-// °¡¿ì½Ã¾È Ç¥ÁØÁ¤±ÔºĞÆ÷ ÇÔ¼ö, °¡ÁßÄ¡ ÃÊ±âÈ­¿¡ »ç¿ë !!
+// ê°€ìš°ì‹œì•ˆ í‘œì¤€ì •ê·œë¶„í¬ í•¨ìˆ˜, ê°€ì¤‘ì¹˜ ì´ˆê¸°í™”ì— ì‚¬ìš© !!
 double GaussianRandom(void)
 {
 	double value_1, value_2, s;
 
 	do {
-		value_1 = 2 * ((double)rand() / RAND_MAX) - 1;      // -1.0 ~ 1.0 ±îÁöÀÇ °ª
-		value_2 = 2 * ((double)rand() / RAND_MAX) - 1;      // -1.0 ~ 1.0 ±îÁöÀÇ °ª
+		value_1 = 2 * ((double)rand() / RAND_MAX) - 1;      // -1.0 ~ 1.0 ê¹Œì§€ì˜ ê°’
+		value_2 = 2 * ((double)rand() / RAND_MAX) - 1;      // -1.0 ~ 1.0 ê¹Œì§€ì˜ ê°’
 		s = (value_1 * value_1) + (value_2 * value_2);
 	} while (s >= 1 || s == 0);
 
@@ -1053,7 +1053,7 @@ double GaussianRandom(void)
 	return value_1 * s;
 }
 
-// ÀÔ·ÂÆĞÅÏ Ãâ·ÂÀ» À§ÇÑ ÇÔ¼ö,,
+// ì…ë ¥íŒ¨í„´ ì¶œë ¥ì„ ìœ„í•œ í•¨ìˆ˜,,
 void PrintInputPattern(int P_input[][n_input])
 {
 	printf("\n");
@@ -1067,9 +1067,9 @@ void PrintInputPattern(int P_input[][n_input])
 			do
 			{
 				if (P_input[j][k] == 1)
-					printf("¡á");
+					printf("â– ");
 				else
-					printf("¡à");
+					printf("â–¡");
 				k++;
 			} while (k % (n_input / lines) != 0);
 			printf(" ");
